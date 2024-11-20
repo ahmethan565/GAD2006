@@ -3,7 +3,13 @@
 
 #include "COAAvatar.h"
 
-ACOAAvatar::ACOAAvatar()
+ACOAAvatar::ACOAAvatar() :
+MaxStamina(100.0f),
+StaminaGainRate(10.0f),
+StaminaDrainRate(10.0f),
+Stamina(100.0f),
+bStaminaDrained(false),
+bRunning(false)
 {
 	mSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	mSpringArm->TargetArmLength = 300.0f;
@@ -16,6 +22,8 @@ ACOAAvatar::ACOAAvatar()
 	mSpringArm->bUsePawnControlRotation = true;
 	bUseControllerRotationYaw = false;
 }
+
+
 
 // Called to bind functionality to input
 void ACOAAvatar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -60,4 +68,53 @@ void ACOAAvatar::RunPressed()
 void ACOAAvatar::RunReleased()
 {
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+}
+
+void ACOAAvatar::UpdateMovementParams()
+{
+	if (!bStaminaDrained)
+	{
+		if (bRunning)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+		}
+		else 
+		{
+			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		}
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
+}
+
+void ACOAAvatar::Tick(float DeltaTime)
+{
+	if (!bStaminaDrained&& bRunning)
+	{
+		if (GetCharacterMovement()->MovementMode == MOVE_Walking)
+		{
+			Stamina -= StaminaDrainRate * DeltaTime;
+
+			if (Stamina <= 0.0f)
+			{
+				bRunning = false;
+				bStaminaDrained = true;
+				UpdateMovementParams();
+			}
+		}
+	}
+	else if (!bRunning)
+	{
+		if (Stamina < MaxStamina)
+		{
+			Stamina += StaminaGainRate * DeltaTime;
+		}
+		else
+		{
+			bStaminaDrained = false;
+			Stamina = MaxStamina;
+		}
+	}		
 }

@@ -8,8 +8,8 @@ ACOABaseCharacter::ACOABaseCharacter() :
 	bDead(false),
 	Health(100.0f),
 	MaxHealth(100.f),
-	HealingRate(0.0f),
-	WalkSpeed(100.0f)
+	HealingRate(10.0f),
+	WalkSpeed(600.0f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
